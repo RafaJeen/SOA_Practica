@@ -38,7 +38,7 @@ int main (int argc, char *argv[]){
 
     if(h == 0xEF53){
       //Es un fitxer Ext2
-      
+      //holahola
     }
 
 
