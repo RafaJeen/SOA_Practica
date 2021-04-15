@@ -19,15 +19,15 @@ typedef struct {
   uint32_t s_blocks_per_group;
   uint32_t s_frags_per_group;
   uint32_t s_inodes_per_group;
-  uint32_t s_mtime; //Guarda  fecha --> int64_t (otra prueba)
-  uint32_t s_wtime; //Lo mismo q arriba --time_t
+--  uint32_t s_mtime; //Guarda  fecha --> int64_t (otra prueba)
+--  uint32_t s_wtime; //Lo mismo q arriba --time_t
   uint16_t s_mnt_count; //Guarda un tiempo (no se si int)
   uint16_t s_max_mnt_count; //Puede q int
   uint16_t s_magic;
   uint16_t s_state; //Si falla mirar tabla
   uint16_t s_errors; //Lo mismo que arriba
   uint16_t s_minor_rev_level; //Alomejor int
-  uint32_t s_lastcheck; //Lo mismo q arriba --time_t
+--  uint32_t s_lastcheck; //Lo mismo q arriba --time_t
   uint32_t s_checkinterval; //Lo mismo q arriba --time_t
   uint32_t s_creator_os;
   uint32_t s_rev_level;
@@ -133,6 +133,7 @@ int main (int argc, char *argv[]){
 
       mostraInfoExt2(ext);
     } else {
+      //holakkkkk
 
     }
 
