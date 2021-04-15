@@ -19,15 +19,15 @@ typedef struct {
   uint32_t s_blocks_per_group;
   uint32_t s_frags_per_group;
   uint32_t s_inodes_per_group;
---  uint32_t s_mtime; //Guarda  fecha --> int64_t (otra prueba)
---  uint32_t s_wtime; //Lo mismo q arriba --time_t
+  uint32_t s_mtime; //Guarda  fecha --> int64_t (otra prueba)----
+  uint32_t s_wtime; //Lo mismo q arriba --time_t----
   uint16_t s_mnt_count; //Guarda un tiempo (no se si int)
   uint16_t s_max_mnt_count; //Puede q int
   uint16_t s_magic;
   uint16_t s_state; //Si falla mirar tabla
   uint16_t s_errors; //Lo mismo que arriba
   uint16_t s_minor_rev_level; //Alomejor int
---  uint32_t s_lastcheck; //Lo mismo q arriba --time_t
+  uint32_t s_lastcheck; //Lo mismo q arriba --time_t ------
   uint32_t s_checkinterval; //Lo mismo q arriba --time_t
   uint32_t s_creator_os;
   uint32_t s_rev_level;
@@ -96,6 +96,79 @@ void mostraInfoExt2(Ext ext){
     printf("Ultima escriptura: %s\n", checkInterval);
 }
 
+int isFat16(int fd){
+  lseek(fd, 0, SEEK_SET);
+
+  short rootDirSectors, BPB_RootEntCnt, BPB_BytsPerSec;
+  //short BPB_RootEntCnt;
+
+  lseek(fd, 17, SEEK_CUR);
+  read(fd, &BPB_RootEntCnt, 2);
+  lseek(fd, 11, SEEK_SET);
+  read(fd, &BPB_BytsPerSec, 2);
+
+  rootDirSectors = ((BPB_RootEntCnt * 32) + (BPB_BytsPerSec - 1)) / BPB_BytsPerSec;
+
+  printf("%d\n", rootDirSectors);
+
+  lseek(fd, 22, SEEK_SET);
+
+  short BPB_FATSz16;
+  read(fd, &BPB_FATSz16, 2);
+
+  short FATSz;
+
+  if(BPB_FATSz16 != 0){
+    FATSz = BPB_FATSz16;
+  }
+
+  printf("%d\n", FATSz);
+
+  lseek(fd, 19, SEEK_SET);
+
+  short BPB_TotSec16;
+
+  read(fd, &BPB_TotSec16, 2);
+
+  printf("%d\n", BPB_TotSec16);
+
+  short TotSec;
+
+  if(BPB_TotSec16 != 0){
+    TotSec = BPB_TotSec16;
+  }
+
+  short BPB_RsvdSecCnt;
+  lseek(fd, 14, SEEK_SET);
+  read(fd, &BPB_RsvdSecCnt, 2);
+
+  short BPB_NumFats;
+  lseek(fd, 16, SEEK_SET);
+  read(fd, &BPB_NumFats, SEEK_SET);
+
+  short DataSec = TotSec - (BPB_RsvdSecCnt + (BPB_NumFats * FATSz) + rootDirSectors);
+
+  printf("%d\n", DataSec);
+
+  short BPB_SetPerClus;
+  lseek(fd, 13, SEEK_SET);
+  read(fd, &BPB_SetPerClus, 1);
+
+  //short setPerClus = BPB_SetPerClus - '0';
+
+  printf("%d\n", BPB_SetPerClus);
+
+  short countOfClousters = DataSec / BPB_SetPerClus;
+
+  printf("%d\n", countOfClousters);
+
+  if(countOfClousters >= 4085 && countOfClousters < 65525){
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 
 int main (int argc, char *argv[]){
 
@@ -132,9 +205,12 @@ int main (int argc, char *argv[]){
       read(fd, &ext, sizeof(Ext));
 
       mostraInfoExt2(ext);
+      close(fd);
     } else {
-      //holakkkkk
-
+      //calculamos para comprobar que es un fichero fat16
+      if(isFat16(fd)){
+          printf("lelelel\n");
+      }
     }
 
 
