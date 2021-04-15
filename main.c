@@ -57,6 +57,24 @@ typedef struct {
 }Ext;
 
 
+typedef struct {
+  unsigned char BS_jmpBoot[3];
+  unsigned char BS_OEMName[8];
+  short BPB_BytsPerSec;
+  char BPB_SecPerClus;
+  short BPB_RsvdSecCnt;
+  unsigned char BPB_NumFATs;
+  unsigned short int BPB_RootEnCnt;
+  short BPB_TotSec16;
+  char BPB_Media;
+  short BPB_FATSz16;
+  short BPB_SecPerTrk;
+  short BPB_NumHeads;
+  unsigned int bpb_HiddSec;
+  unsigned int BPB_TotSec32;
+}Fat;
+
+
 
 void mostraInfoExt2(Ext ext){
 
@@ -169,6 +187,22 @@ int isFat16(int fd){
   }
 }
 
+void mostraInfoFat16(Fat fat){
+  printf("-------- Fylesystem Information --------\n\n");
+  printf("Filesystem: FAT16\n");
+  printf("System Name: %s\n", fat.BS_OEMName);
+  printf("Mida del sector: %d\n", fat.BPB_BytsPerSec);
+  short sec = fat.BPB_BytsPerSec - '0';
+  printf("Sectors Per Cluster: %d\n", sec);
+  printf("Sectors reservats: %d\n", fat.BPB_RsvdSecCnt);
+  printf("%cçu\n", fat.BPB_NumFATs);
+  int fats = fat.BPB_NumFATs - '0';
+  printf("Numero de FATs: %d\n", fats);
+  printf("MaxRootEntries: %d\n", fat.BPB_RootEnCnt);
+  printf("Sectors per FAT: %d\n", fat.BPB_TotSec16);
+  //printf("Label: %d\n", );
+}
+
 
 int main (int argc, char *argv[]){
 
@@ -209,16 +243,13 @@ int main (int argc, char *argv[]){
     } else {
       //calculamos para comprobar que es un fichero fat16
       if(isFat16(fd)){
-          printf("lelelel\n");
+        Fat fat;
+        lseek(fd, 0, SEEK_SET);
+        read(fd, &fat, sizeof(fat));
+        //printf("");
+        mostraInfoFat16(fat);
+      } else {
+        printf("L'arxiu que has introduit no es un fitxer valid.\n");
       }
     }
-
-
-
-
-
-
-
-
-
 }
