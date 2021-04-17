@@ -40,45 +40,39 @@ typedef struct {
   uint32_t s_feature_incompat;
   uint32_t s_feature_ro_compat;
   uint32_t s_uuid[4]; //128bit unico k esta bien creojeje
-  unsigned char s_volume_name[16];
+  char s_volume_name[16];
   //uint32_t s_last_mounted[16];
-  char s_last_mounted[64];
+  unsigned char s_last_mounted[64];
   uint32_t s_algo_bitmap; //32bit creo k d los pocos k bnn
-  uint8_t s_prealloc_blocks; //Creo que asi tiene que ser :)
-  uint8_t s_prealloc_dir_blocks; //Probar
-  uint16_t s_journal_uuid; //Probar
-  int32_t s_journal_inum; //Probar
-  int32_t s_journal_dev;
-  int32_t s_last_orphan;
-  int32_t s_hash_seed[4]; //Probar
-  int8_t s_def_hash_version; //Probar
-  int32_t s_default_mount_options;
-  int32_t s_first_meta_bg; //32bit
 }Ext;
 
 
 typedef struct {
-  unsigned char BS_jmpBoot[3];
+  uint8_t BS_jmpBoot[3];
   unsigned char BS_OEMName[8];
-  short BPB_BytsPerSec;
-  char BPB_SecPerClus;
+  unsigned short BPB_BytsPerSec;
+  uint8_t BPB_SecPerClus;
   short BPB_RsvdSecCnt;
-  unsigned char BPB_NumFATs;
-  unsigned short int BPB_RootEnCnt;
-  short BPB_TotSec16;
-  char BPB_Media;
+  uint8_t BPB_NumFATs;
+  unsigned short BPB_RootEnCnt;
+  unsigned short BPB_TotSec16;
+  uint8_t BPB_Media;
   short BPB_FATSz16;
   short BPB_SecPerTrk;
   short BPB_NumHeads;
-  unsigned int bpb_HiddSec;
+  unsigned int BPB_HiddSec;
   unsigned int BPB_TotSec32;
+  uint8_t BS_DrvNum;
+  uint8_t BS_Reserved1;
+  uint8_t BS_BootSig;
+  // unsigned int BS_VolID;
+  char BS_VolLab[11];
 }Fat;
 
 
 
 void mostraInfoExt2(Ext ext){
-
-    printf("-------- Fylesystem Information --------\n\n");
+    printf("\n-------- Fylesystem Information --------\n\n");
     printf("Filesystem: EXT2\n\n");
 
     printf("INFO INODE\n");
@@ -105,12 +99,12 @@ void mostraInfoExt2(Ext ext){
     char* lastCheck = ctime(&kk);
     printf("Ultima comprov: %s\n", lastCheck);
 
-    kk = (time_t)ext.s_last_mounted;
-    char* lastMounted = ctime(&kk);
+    time_t ll = (time_t)ext.s_mtime;
+    char* lastMounted = ctime(&ll);
     printf("Ultim muntatge: %s\n", lastMounted);
 
-    kk = (time_t)ext.s_checkinterval;
-    char* checkInterval = ctime(&kk);
+    time_t yy = (time_t)ext.s_wtime;
+    char* checkInterval = ctime(&yy);
     printf("Ultima escriptura: %s\n", checkInterval);
 }
 
@@ -118,7 +112,6 @@ int isFat16(int fd){
   lseek(fd, 0, SEEK_SET);
 
   short rootDirSectors, BPB_RootEntCnt, BPB_BytsPerSec;
-  //short BPB_RootEntCnt;
 
   lseek(fd, 17, SEEK_CUR);
   read(fd, &BPB_RootEntCnt, 2);
@@ -126,8 +119,6 @@ int isFat16(int fd){
   read(fd, &BPB_BytsPerSec, 2);
 
   rootDirSectors = ((BPB_RootEntCnt * 32) + (BPB_BytsPerSec - 1)) / BPB_BytsPerSec;
-
-  printf("%d\n", rootDirSectors);
 
   lseek(fd, 22, SEEK_SET);
 
@@ -140,15 +131,11 @@ int isFat16(int fd){
     FATSz = BPB_FATSz16;
   }
 
-  printf("%d\n", FATSz);
-
   lseek(fd, 19, SEEK_SET);
 
   short BPB_TotSec16;
 
   read(fd, &BPB_TotSec16, 2);
-
-  printf("%d\n", BPB_TotSec16);
 
   short TotSec;
 
@@ -166,19 +153,11 @@ int isFat16(int fd){
 
   short DataSec = TotSec - (BPB_RsvdSecCnt + (BPB_NumFats * FATSz) + rootDirSectors);
 
-  printf("%d\n", DataSec);
-
   short BPB_SetPerClus;
   lseek(fd, 13, SEEK_SET);
   read(fd, &BPB_SetPerClus, 1);
 
-  //short setPerClus = BPB_SetPerClus - '0';
-
-  printf("%d\n", BPB_SetPerClus);
-
   short countOfClousters = DataSec / BPB_SetPerClus;
-
-  printf("%d\n", countOfClousters);
 
   if(countOfClousters >= 4085 && countOfClousters < 65525){
     return 1;
@@ -187,20 +166,37 @@ int isFat16(int fd){
   }
 }
 
+char *netejaCadena(char*cadena){
+   char *label = malloc(10);
+   int i;
+
+   for(i = 0; cadena[i] != ' '; i++){
+      label[i] = cadena[i];
+   }
+
+   label[i] = '\0';
+
+   return label;
+
+}
+
 void mostraInfoFat16(Fat fat){
-  printf("-------- Fylesystem Information --------\n\n");
+  printf("\n-------- Fylesystem Information --------\n\n");
   printf("Filesystem: FAT16\n");
   printf("System Name: %s\n", fat.BS_OEMName);
   printf("Mida del sector: %d\n", fat.BPB_BytsPerSec);
-  short sec = fat.BPB_BytsPerSec - '0';
+
+  int sec = (int) fat.BPB_SecPerClus;
   printf("Sectors Per Cluster: %d\n", sec);
+
   printf("Sectors reservats: %d\n", fat.BPB_RsvdSecCnt);
-  printf("%cçu\n", fat.BPB_NumFATs);
-  int fats = fat.BPB_NumFATs - '0';
+
+  int fats = (int) fat.BPB_NumFATs;
   printf("Numero de FATs: %d\n", fats);
   printf("MaxRootEntries: %d\n", fat.BPB_RootEnCnt);
   printf("Sectors per FAT: %d\n", fat.BPB_TotSec16);
-  //printf("Label: %d\n", );
+  char *label = netejaCadena(fat.BS_VolLab);
+  printf("Label: %s\n", label);
 }
 
 
@@ -251,5 +247,6 @@ int main (int argc, char *argv[]){
       } else {
         printf("L'arxiu que has introduit no es un fitxer valid.\n");
       }
+      close(fd);
     }
 }
