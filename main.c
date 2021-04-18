@@ -6,6 +6,31 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <time.h>
+/*#include "ext.h"
+#include "fat16.h"*/
+
+
+typedef struct {
+  uint8_t BS_jmpBoot[3];
+  unsigned char BS_OEMName[8];
+  unsigned short BPB_BytsPerSec;
+  uint8_t BPB_SecPerClus;
+  short BPB_RsvdSecCnt;
+  uint8_t BPB_NumFATs;
+  unsigned short BPB_RootEnCnt;
+  unsigned short BPB_TotSec16;
+  uint8_t BPB_Media;
+  short BPB_FATSz16;
+  short BPB_SecPerTrk;
+  short BPB_NumHeads;
+  unsigned int BPB_HiddSec;
+  unsigned int BPB_TotSec32;
+  uint8_t BS_DrvNum;
+  uint8_t BS_Reserved1;
+  uint8_t BS_BootSig;
+  // unsigned int BS_VolID;
+  char BS_VolLab[11];
+}Fat;
 
 typedef struct {
   uint32_t s_inodes_count; //Alomejor son todos int pk 4bytes*8 = 32bits
@@ -47,30 +72,6 @@ typedef struct {
 }Ext;
 
 
-typedef struct {
-  uint8_t BS_jmpBoot[3];
-  unsigned char BS_OEMName[8];
-  unsigned short BPB_BytsPerSec;
-  uint8_t BPB_SecPerClus;
-  short BPB_RsvdSecCnt;
-  uint8_t BPB_NumFATs;
-  unsigned short BPB_RootEnCnt;
-  unsigned short BPB_TotSec16;
-  uint8_t BPB_Media;
-  short BPB_FATSz16;
-  short BPB_SecPerTrk;
-  short BPB_NumHeads;
-  unsigned int BPB_HiddSec;
-  unsigned int BPB_TotSec32;
-  uint8_t BS_DrvNum;
-  uint8_t BS_Reserved1;
-  uint8_t BS_BootSig;
-  // unsigned int BS_VolID;
-  char BS_VolLab[11];
-}Fat;
-
-
-
 void mostraInfoExt2(Ext ext){
     printf("\n-------- Fylesystem Information --------\n\n");
     printf("Filesystem: EXT2\n\n");
@@ -107,6 +108,7 @@ void mostraInfoExt2(Ext ext){
     char* checkInterval = ctime(&yy);
     printf("Ultima escriptura: %s\n", checkInterval);
 }
+
 
 int isFat16(int fd){
   lseek(fd, 0, SEEK_SET);
@@ -166,6 +168,7 @@ int isFat16(int fd){
   }
 }
 
+
 char *netejaCadena(char*cadena){
    char *label = malloc(10);
    int i;
@@ -198,7 +201,6 @@ void mostraInfoFat16(Fat fat){
   char *label = netejaCadena(fat.BS_VolLab);
   printf("Label: %s\n", label);
 }
-
 
 int main (int argc, char *argv[]){
 
