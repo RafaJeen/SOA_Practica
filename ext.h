@@ -1,6 +1,14 @@
 #ifndef _EXT_H_
 #define _EXT_H_
 
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <stdint.h>
+#include <time.h>
 
 typedef struct {
   uint32_t s_inodes_count; //Alomejor son todos int pk 4bytes*8 = 32bits
@@ -14,15 +22,15 @@ typedef struct {
   uint32_t s_blocks_per_group;
   uint32_t s_frags_per_group;
   uint32_t s_inodes_per_group;
-  uint32_t s_mtime; //Guarda  fecha --> int64_t (otra prueba)
-  uint32_t s_wtime; //Lo mismo q arriba --time_t
+  uint32_t s_mtime; //Guarda  fecha --> int64_t (otra prueba)----
+  uint32_t s_wtime; //Lo mismo q arriba --time_t----
   uint16_t s_mnt_count; //Guarda un tiempo (no se si int)
   uint16_t s_max_mnt_count; //Puede q int
-  uint16_t magic;
+  uint16_t s_magic;
   uint16_t s_state; //Si falla mirar tabla
   uint16_t s_errors; //Lo mismo que arriba
   uint16_t s_minor_rev_level; //Alomejor int
-  uint32_t s_lastcheck; //Lo mismo q arriba --time_t
+  uint32_t s_lastcheck; //Lo mismo q arriba --time_t ------
   uint32_t s_checkinterval; //Lo mismo q arriba --time_t
   uint32_t s_creator_os;
   uint32_t s_rev_level;
@@ -34,29 +42,13 @@ typedef struct {
   uint32_t s_feature_compat;
   uint32_t s_feature_incompat;
   uint32_t s_feature_ro_compat;
-  uint128_t s_uuid; //128bit unico k esta bien creojeje
-  uint128_t s_volume_name;
-  uint512_t s_last_mounted;
+  uint32_t s_uuid[4]; //128bit unico k esta bien creojeje
+  char s_volume_name[16];
+  //uint32_t s_last_mounted[16];
+  unsigned char s_last_mounted[64];
   uint32_t s_algo_bitmap; //32bit creo k d los pocos k bnn
-  uint8_t s_prealloc_blocks; //Creo que asi tiene que ser :)
-  uint8_t s_prealloc_dir_blocks; //Probar
-  uint16_t s_journal_uuid; //Probar
-  int32_t s_journal_inum; //Probar
-  int32_t s_journal_dev;
-  int32_t s_last_orphan;
-  int32_t s_hash_seed[4]; //Probar
-  int8_t s_def_hash_version; //Probar
-  int32_t s_default_mount_options;
-  int32_t s_first_meta_bg; //32bit
 }Ext;
 
-
-
-
-
-
-
-
-
+void mostraInfoExt2(Ext ext);
 
 #endif
