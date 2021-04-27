@@ -12,7 +12,7 @@ int main (int argc, char *argv[]){
         return 0;
     }
 
-    if(strcmp(argv[1], "/intro") != 0){
+    if(strcmp(argv[1], "/info") != 0){
         printf("La comanda %s es incorrecte\n", argv[1]);
         return 0;
     }
