@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
+#define _FAT16_H_
+
 typedef struct {
   uint8_t BS_jmpBoot[3];
   unsigned char BS_OEMName[8];
@@ -38,4 +41,6 @@ char *netejaCadena(char*cadena);
 void mostraInfoFat16(Fat fat);
 
 
+
 #endif
+
