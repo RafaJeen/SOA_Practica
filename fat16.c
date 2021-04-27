@@ -1,6 +1,4 @@
-
 #include "fat16.h"
-/*#include "fat16.h"
 
 
 int isFat16(int fd){
