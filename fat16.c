@@ -1,4 +1,7 @@
+
+#include "fat16.h"
 /*#include "fat16.h"
+
 
 int isFat16(int fd){
   lseek(fd, 0, SEEK_SET);
@@ -90,4 +93,4 @@ void mostraInfoFat16(Fat fat){
   printf("Sectors per FAT: %d\n", fat.BPB_TotSec16);
   char *label = netejaCadena(fat.BS_VolLab);
   printf("Label: %s\n", label);
-}*/
+}

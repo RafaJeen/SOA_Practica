@@ -1,4 +1,16 @@
-/*#ifndef _FAT16_H_
+#ifndef _FAT16_H_
+#define _FAT16_H_
+
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <stdint.h>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+
 #define _FAT16_H_
 
 typedef struct {
@@ -29,4 +41,6 @@ char *netejaCadena(char*cadena);
 void mostraInfoFat16(Fat fat);
 
 
-#endif*/
+
+#endif
+
