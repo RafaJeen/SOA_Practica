@@ -59,6 +59,29 @@ int isFat16(int fd){
   }
 }
 
+void llegeixInfoFat(Fat *fat, int fd) {
+    lseek(fd, 0, SEEK_SET);
+    read(fd, &fat->BS_jmpBoot, 3);
+    read(fd, fat->BS_OEMName, 8);
+    read(fd, &fat->BPB_BytsPerSec, 2);
+    read(fd, &fat->BPB_SecPerClus, 1);
+    read(fd, &fat->BPB_RsvdSecCnt, 2);
+    read(fd, &fat->BPB_NumFATs, 1);
+    read(fd, &fat->BPB_RootEnCnt, 2);
+    read(fd, &fat->BPB_TotSec16, 2);
+    read(fd, &fat->BPB_Media, 1);
+    read(fd, &fat->BPB_FATSz16, 2);
+    read(fd, &fat->BPB_SecPerTrk, 2);
+    read(fd, &fat->BPB_NumHeads, 2);
+    read(fd, &fat->BPB_HiddSec, 4);
+    read(fd, &fat->BPB_TotSec32, 4);
+    read(fd, &fat->BS_DrvNum, 1);
+    read(fd, &fat->BS_Reserved1, 1);
+    read(fd, &fat->BS_BootSig, 1);
+    read(fd, &fat->BS_VolID, 4);
+    read(fd, fat->BS_VolLab, 11);
+}
+
 
 char *netejaCadena(char*cadena){
    char *label = malloc(10);

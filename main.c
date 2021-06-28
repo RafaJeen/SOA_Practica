@@ -3,8 +3,6 @@
 #include "ext.h"
 #include "fat16.h"
 
-
-
 int main (int argc, char *argv[]){
 
     if(argc != 3){
@@ -45,9 +43,7 @@ int main (int argc, char *argv[]){
       //calculamos para comprobar que es un fichero fat16
       if(isFat16(fd)){
         Fat fat;
-        lseek(fd, 0, SEEK_SET);
-        read(fd, &fat, sizeof(fat));
-        //printf("");
+        llegeixInfoFat(&fat, fd);
         mostraInfoFat16(fat);
       } else {
         printf("L'arxiu que has introduit no es un fitxer valid.\n");
