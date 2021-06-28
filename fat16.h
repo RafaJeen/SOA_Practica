@@ -31,14 +31,16 @@ typedef struct {
   uint8_t BS_DrvNum;
   uint8_t BS_Reserved1;
   uint8_t BS_BootSig;
-  // unsigned int BS_VolID;
+  unsigned int BS_VolID;
   char BS_VolLab[11];
 }Fat;
 
 
 int isFat16(int fd);
 char *netejaCadena(char*cadena);
+void llegeixInfoFat(Fat *fat, int fd);
 void mostraInfoFat16(Fat fat);
+
 
 
 

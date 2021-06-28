@@ -1,7 +1,7 @@
 
 
-Practica_SOA: main.o ext.o fat16.o
-	gcc main.o ext.o fat16.o -o Practica_SOA
+shooter: main.o ext.o fat16.o
+	gcc main.o ext.o fat16.o -o shooter
 main.o: main.c
 	gcc -c main.c
 ext.o: ext.c ext.h
@@ -9,4 +9,4 @@ ext.o: ext.c ext.h
 fat16.o: fat16.c fat16.h
 	gcc -c fat16.c
 clean:
-	rm -f Practica_SOA *.o
+	rm -f shooter *.o
