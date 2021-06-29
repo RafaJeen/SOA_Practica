@@ -36,8 +36,8 @@ typedef struct {
 }Fat;
 
 typedef struct {
-    char long_name[8];                    //The file's name, truncated to 31 characters.
-    char extension[3];                    //The file's attributes. Mask of the FAT16_ATTRIB_* constants.
+    char long_name[8];
+    char extension[3];
     uint8_t fileAttr;
     uint8_t reserved[10];
     uint16_t tChange;
