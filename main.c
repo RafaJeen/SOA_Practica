@@ -58,7 +58,7 @@ int main (int argc, char *argv[]){
               }*/
               break;
           default:
-              printf("La comanda %s es incorrecte\n", argv[1]);
+              printf("La comanda %s es incorrecte.\n", argv[1]);
               break;
       }
       close(fd);
