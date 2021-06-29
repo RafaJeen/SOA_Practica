@@ -45,7 +45,7 @@ int EXT_findFile(int fd, Ext ext, char* fileName, int numInode) {
     int bytes = -1;
     DirectoryEntry de;
     char *name;
-    Inode inode = EXT_getInode(fd, ext, 2);
+    Inode inode = EXT_getInode(fd, ext, numInode);
     int blockSize = 1024 << ext.s_log_block_size;
     for(int i = 0; totalLen < inode.i_size; i++){
         actualLen = 0;
@@ -61,9 +61,19 @@ int EXT_findFile(int fd, Ext ext, char* fileName, int numInode) {
             if(actualLen == 0 || totalLen > inode.i_size){
                 acabaLlegir = 1;
             } else {
-                if(strcmp(fileName, name) == 0){
+                if(strcmp(fileName, name) == 0 && de.file_type == 1){
                     Inode inode = EXT_getInode(fd, ext, de.inode);
                     bytes = inode.i_size;
+                    acabaLlegir = 1;
+                    totalLen = inode.i_size+5;
+                } else if(de.file_type == 2) {
+                    if(strcmp(name, ".") != 0 && strcmp(name, "..") != 0 && strcmp(name, "lost+found") != 0){
+                        bytes = EXT_findFile(fd, ext, fileName, de.inode);
+                        if(bytes>=0){
+                            acabaLlegir = 1;
+                            totalLen = inode.i_size+5;
+                        }
+                    }
                 }
                 lseek(fd, blockSize + blockSize*(inode.i_block[i]-1)+totalLen, SEEK_SET);
                 free(name);
