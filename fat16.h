@@ -35,12 +35,24 @@ typedef struct {
   char BS_VolLab[11];
 }Fat;
 
+typedef struct {
+    char long_name[8];                    //The file's name, truncated to 31 characters.
+    char extension[3];                    //The file's attributes. Mask of the FAT16_ATTRIB_* constants.
+    uint8_t fileAttr;
+    uint8_t reserved[10];
+    uint16_t tChange;
+    uint16_t dChange;
+    uint16_t firstCluster;
+    uint32_t fSize;
+}DirectoryEntryFat;
+
 
 int FAT_isFat16(int fd);
 char *FAT_netejaCadena(char*cadena);
 void FAT_llegeixInfoFat(Fat *fat, int fd);
 void FAT_mostraInfoFat16(Fat fat);
-
+void FAT_separaExtensio(char* nomTotal, char* nomFitxer, char* extensio);
+int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int blockNum);
 
 
 

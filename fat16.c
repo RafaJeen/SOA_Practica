@@ -115,3 +115,93 @@ void FAT_mostraInfoFat16(Fat fat){
   char *label = FAT_netejaCadena(fat.BS_VolLab);
   printf("Label: %s\n", label);
 }
+
+void  FAT_separaExtensio(char* nomTotal, char* nomFitxer, char* extensio) {
+    int k = 0;
+    extensio[0] = '\0';
+    int trobat = 0;
+
+    for(int i = strlen(nomTotal)-1; i >= 0; i--) {
+        if(nomTotal[i] == '.'){
+            trobat = 1;
+            for(k = i; k < strlen(nomTotal); k++){
+                extensio[k-(i+1)] = nomTotal[k];
+            }
+            nomTotal[i] = '\0';
+            strcpy(nomFitxer, nomTotal);
+            extensio[k-(i+1)] = '\0';
+            break;
+        }
+    }
+    if(!trobat) {
+      strcpy(nomFitxer, nomTotal);
+   }
+}
+
+char* FAT_clearString(char *string, int limit) {
+    char* clearedString = (char *) malloc (sizeof(char)*strlen(string));
+    int j = 0;
+
+    for(int i = 0; i <= limit; i++){
+        if(string[i] != ' ' && string[i] != '~'){
+            if(string[i] >= 'A' && string[i] <= 'Z'){
+                clearedString[j] = string[i] - 'A' + 'a';
+            } else {
+                clearedString[j] = string[i];
+            }
+            j++;
+        } else {
+            string[i] = '\0';
+            break;
+        }
+    }
+    return clearedString;
+}
+
+int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int blockNum){
+
+    uint32_t RootDirectoryRegionStart = (fat.BPB_RsvdSecCnt+(fat.BPB_NumFATs*fat.BPB_FATSz16))* fat.BPB_BytsPerSec ;
+
+    uint32_t DataRegionStart = ((blockNum-2) * fat.BPB_SecPerClus * fat.BPB_BytsPerSec) + RootDirectoryRegionStart ;
+
+
+    lseek(fd, DataRegionStart, SEEK_SET);
+
+    int surt = 0;
+    int bytes = -1;
+
+    while(!surt) {
+        DirectoryEntryFat de;
+        read(fd, &de, sizeof(DirectoryEntryFat));
+        if(de.long_name[0] == 0x00){
+            surt = 1;
+        } else {
+            char* deFileName = FAT_clearString(de.long_name, 8);
+            char* deExtension = FAT_clearString(de.extension, 3);
+
+            //Comprovem que no tingui la extensio directament enganxada
+            if(strlen(deExtension) > 0){
+                char* aux = (char *) malloc (sizeof(char)*strlen(deExtension)+1);
+                int k = strlen(deFileName) - (strlen(deExtension));
+                int j = 0;
+                for(int i = k; i < strlen(deFileName); i++){
+                    aux[j] = deFileName[i];
+                }
+                if(strcmp(aux, deExtension) == 0){
+                    deFileName[k] = '\0';
+                }
+            }
+
+            if(strcmp(nomFitxer, deFileName) == 0){
+                if(strlen(deExtension) > 0){
+                    if(strcmp(deExtension, extensio) == 0){
+                        bytes = de.fSize;
+                    }
+                } else {
+                    bytes = de.fSize;
+                }
+            }
+        }
+    }
+    return bytes;
+}

@@ -40,12 +40,12 @@ int main (int argc, char *argv[]){
               break;
           case 2:; //find
               if(argc != 4) {
-                  printf("El nobre de parametres es incorrecte.\n");
+                  printf("El nombre de parametres es incorrecte.\n");
                   return 0;
               } else {
                   int bytes = EXT_findFile(fd, ext, argv[3], 2);
                   if(bytes < 0) {
-                      printf("Error fitxer no trobat.\n");
+                      printf("Error. Fitxer no trobat.\n");
                   } else {
                       printf("Fitxer trobat. Ocupa %d bytes.\n", bytes);
                   }
@@ -66,17 +66,36 @@ int main (int argc, char *argv[]){
       //calculamos para comprobar que es un fichero fat16
       if(FAT_isFat16(fd)){
         Fat fat;
-          FAT_llegeixInfoFat(&fat, fd);
+        FAT_llegeixInfoFat(&fat, fd);
         switch(getKey(argv[1])) {
           case 1: //info
-              FAT_mostraInfoFat16(fat);
+              if(argc != 3) {
+                  printf("El nombre de parametres es incorrecte.\n");
+                  return 0;
+              } else {
+                  FAT_mostraInfoFat16(fat);
+              }
               break;
           case 2: //find
+              if(argc != 4) {
+                  printf("El nombre de parametres es incorrecte.\n");
+                  return 0;
+              } else {
+                  char nomFitxer[10];
+                  char extensio[4];
+                  FAT_separaExtensio(argv[3], nomFitxer, extensio);
+                  int fileBytes = FAT_findFileInFat(fd, fat, nomFitxer, extensio, 2);
+                  if(fileBytes >= 0) {
+                      printf("Fitxer trobat. Ocupa %d bytes.\n", fileBytes);
+                  } else {
+                      printf("Error. Fitxer no trobat.\n");
+                  }
+              }
               break;
           case 3: //delete
               break;
           default:
-              printf("La comanda %s es incorrecte\n", argv[1]);
+              printf("La comanda %s es incorrecte.\n", argv[1]);
               break;
         }
         close(fd);
