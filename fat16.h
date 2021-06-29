@@ -36,10 +36,10 @@ typedef struct {
 }Fat;
 
 
-int isFat16(int fd);
-char *netejaCadena(char*cadena);
-void llegeixInfoFat(Fat *fat, int fd);
-void mostraInfoFat16(Fat fat);
+int FAT_isFat16(int fd);
+char *FAT_netejaCadena(char*cadena);
+void FAT_llegeixInfoFat(Fat *fat, int fd);
+void FAT_mostraInfoFat16(Fat fat);
 
 
 

@@ -1,7 +1,7 @@
 #include "fat16.h"
 
 
-int isFat16(int fd){
+int FAT_isFat16(int fd){
   lseek(fd, 0, SEEK_SET);
 
   short rootDirSectors, BPB_RootEntCnt, BPB_BytsPerSec;
@@ -59,7 +59,7 @@ int isFat16(int fd){
   }
 }
 
-void llegeixInfoFat(Fat *fat, int fd) {
+void FAT_llegeixInfoFat(Fat *fat, int fd) {
     lseek(fd, 0, SEEK_SET);
     read(fd, &fat->BS_jmpBoot, 3);
     read(fd, fat->BS_OEMName, 8);
@@ -83,7 +83,7 @@ void llegeixInfoFat(Fat *fat, int fd) {
 }
 
 
-char *netejaCadena(char*cadena){
+char *FAT_netejaCadena(char*cadena){
    char *label = malloc(10);
    int i;
 
@@ -97,7 +97,7 @@ char *netejaCadena(char*cadena){
 
 }
 
-void mostraInfoFat16(Fat fat){
+void FAT_mostraInfoFat16(Fat fat){
   printf("\n-------- Fylesystem Information --------\n\n");
   printf("Filesystem: FAT16\n");
   printf("System Name: %s\n", fat.BS_OEMName);
@@ -112,6 +112,6 @@ void mostraInfoFat16(Fat fat){
   printf("Numero de FATs: %d\n", fats);
   printf("MaxRootEntries: %d\n", fat.BPB_RootEnCnt);
   printf("Sectors per FAT: %d\n", fat.BPB_TotSec16);
-  char *label = netejaCadena(fat.BS_VolLab);
+  char *label = FAT_netejaCadena(fat.BS_VolLab);
   printf("Label: %s\n", label);
 }

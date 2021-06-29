@@ -1,7 +1,7 @@
 #include "ext.h"
 
 
-void mostraInfoExt2(Ext ext){
+void EXT_mostraInfoExt2(Ext ext){
     printf("\n-------- Fylesystem Information --------\n\n");
     printf("Filesystem: EXT2\n\n");
 
@@ -36,4 +36,61 @@ void mostraInfoExt2(Ext ext){
     time_t yy = (time_t)ext.s_wtime;
     char* checkInterval = ctime(&yy);
     printf("Ultima escriptura: %s\n", checkInterval);
+}
+
+int EXT_findFile(int fd, Ext ext, char* fileName, int numInode) {
+    int totalLen = 0;
+    int actualLen = 0;
+    int acabaLlegir = 0;
+    int bytes = -1;
+    DirectoryEntry de;
+    char *name;
+    Inode inode = EXT_getInode(fd, ext, 2);
+    int blockSize = 1024 << ext.s_log_block_size;
+    for(int i = 0; totalLen < inode.i_size; i++){
+        actualLen = 0;
+        acabaLlegir = 0;
+        lseek(fd, blockSize + blockSize*(inode.i_block[i]-1)+totalLen, SEEK_SET);
+        while(!acabaLlegir){
+            read(fd, &de, sizeof(DirectoryEntry));
+            name = (char *) malloc (sizeof(char)*(de.name_len+1));
+            read(fd, name, de.name_len);
+            name[de.name_len] = '\0';
+            actualLen = de.rec_len;
+            totalLen = totalLen + actualLen;
+            if(actualLen == 0 || totalLen > inode.i_size){
+                acabaLlegir = 1;
+            } else {
+                if(strcmp(fileName, name) == 0){
+                    Inode inode = EXT_getInode(fd, ext, de.inode);
+                    bytes = inode.i_size;
+                }
+                lseek(fd, blockSize + blockSize*(inode.i_block[i]-1)+totalLen, SEEK_SET);
+                free(name);
+            }
+        }
+    }
+    return bytes;
+}
+
+Inode EXT_getInode(int fd, Ext ext, int numInode) {
+    Inode inode;
+    GroupDescriptor gd;
+
+    int blockSize = 1024 << ext.s_log_block_size; //Calculem la mida d'un bloc
+
+    lseek(fd, (ext.s_first_data_block+1)*blockSize, SEEK_SET); //Ens movem al bloc que conte el superblock
+
+    read(fd, &gd, sizeof(GroupDescriptor)); //Llegeixo el group descriptor que conte el offset de la inode table
+
+    int blockGroup = (numInode - 1) / ext.s_inodes_per_group; //Calculo l'inode relatiu per que sigui generic
+    int relativeInode = (numInode - 1) % ext.s_inodes_per_group; //Calculo el grup en el que es troba
+
+    int inodePosition = relativeInode*ext.s_inode_size; //Calculo el offset del inode respecte el començament de la inode table
+    int inodeTablePosition =  gd.bg_inode_table + blockGroup * ext.s_blocks_per_group; //Calculo el offset de la inode table
+
+    lseek(fd, (inodeTablePosition*blockSize)+inodePosition, SEEK_SET); //Em desplaço a la posicio on es troba l'inode
+    read(fd, &inode, sizeof(Inode)); //Llegeixo l'inode
+
+    return inode;
 }
