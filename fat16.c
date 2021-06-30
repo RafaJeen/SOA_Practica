@@ -208,7 +208,6 @@ int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int bloc
                     de.long_name[k] = '\0';
                 }
             }
-
             for(int i=0; de.long_name[i]!='\0' && i<8 ;i++){
                 if(de.long_name[i]==' '){
                     de.long_name[i]='\0';
