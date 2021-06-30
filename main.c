@@ -11,7 +11,7 @@ int getKey(char *command) {
 }
 
 int main (int argc, char *argv[]){
-//dddd
+
     int fd = open(argv[2], O_RDWR);
 
     if(fd < 0){
@@ -43,7 +43,7 @@ int main (int argc, char *argv[]){
                   printf("El nombre de parametres es incorrecte.\n");
                   return 0;
               } else {
-                  int bytes = EXT_findFile(fd, ext, argv[3], 2);
+                  int bytes = EXT_findFile(fd, ext, argv[3], 2, 0);
                   if(bytes < 0) {
                       printf("Error. Fitxer no trobat.\n");
                   } else {
@@ -52,11 +52,17 @@ int main (int argc, char *argv[]){
               }
               break;
           case 3: //delete
-              /*if(argc != 4) {
+              if(argc != 4) {
                   printf("El nobre de parametres es incorrecte.\n");
               } else {
                   //eliminar el fichero
-              }*/
+                  int bytes = EXT_findFile(fd, ext, argv[3], 2, 1);
+                  if(bytes >= 0){
+                      printf("El fitxer %s ha estat eliminat.\n", argv[3]);
+                  } else {
+                      printf("Error. Fitxer no trobat.\n");
+                  }
+              }
               break;
           default:
               printf("La comanda %s es incorrecte.\n", argv[1]);
@@ -84,7 +90,6 @@ int main (int argc, char *argv[]){
               } else {
                   char nomFitxer[30];
                   char extensio[4];
-                  //hacer copia para fase 4 que necesitas nombre original
                   FAT_separaExtensio(argv[3], nomFitxer, extensio);
                   if(strlen(nomFitxer) > 6){
                       nomFitxer[6] = '\0';
@@ -105,7 +110,6 @@ int main (int argc, char *argv[]){
                   //eliminar el fichero
                   char nomFitxer[30];
                   char extensio[4];
-                  //hacer copia para fase 4 que necesitas nombre original
                   FAT_separaExtensio(argv[3], nomFitxer, extensio);
                   if(strlen(nomFitxer) > 6){
                       nomFitxer[6] = '\0';

@@ -90,6 +90,6 @@ typedef struct{
 
 void EXT_mostraInfoExt2(Ext ext);
 Inode EXT_getInode(int fd, Ext ext, int numInode);
-int EXT_findFile(int fd, Ext ext, char* fileName, int numInode);
+int EXT_findFile(int fd, Ext ext, char* fileName, int numInode, int deleteFile);
 
 #endif
