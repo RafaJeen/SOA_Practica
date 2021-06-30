@@ -1,7 +1,8 @@
 # SOA_Practica
-##MEMORIA
+## MEMORIA
 
-###EXPLICACIÓ PER PODER COMPILAR LA PRÀCTICA
+### EXPLICACIÓ PER PODER COMPILAR LA PRÀCTICA
+
 Aquesta pràctica ha estat realitzada amb el llenguatge de programació C. Consta de diferents
 moduls per lo que te un makefile per poder generar un executable que serà executat amb la 
 comanda `./nomExecutable` que en aquest cas te el nom de _shooter_. Per poder compilar la 
@@ -16,8 +17,10 @@ següent:
 
 sent l'ultim paràmetre opcional depenent de la funcionalitat que es vulgui executar.
 
-###EXPLICACIÓ DELS SISTEMES DE FITXERS
-* ####EXT2
+### EXPLICACIÓ DELS SISTEMES DE FITXERS
+
+* #### EXT2
+
 Ext 2 és un sistema de fitxers que treballa amb inodes. Aquests inodes son els que guarden
 la informació dels diferents arxius com la seva ruta, mida, etc. Aquest sistema de fitxers està
 format per diferents N block grups (diferents grups que contenen la informació del volum). Cadascún 
@@ -38,7 +41,8 @@ punters cap a diferents regions del _data block_ on es poden trobar els diferent
 En definitiva, cadascuna de les caselles de l'array de `i_blocks` conté diferents direcory entries 
 on cadscún d'aquests conté diferent informació rellevant sobre l'arxiu.
 
-* ####FAT16
+* #### FAT16
+
 Aquest sistema de fitxers treballa amb diferents blocs respecte l'anterior. En aquest cas, 
 FAT16 conté els blocs _Boot Sector_, _FAT Data Structure_, _FAT Directory Structure_ i _Data Area_.
 
@@ -57,7 +61,8 @@ conté dues copies de la taula __FAT__ que es la que indica quins són els clust
 El _FAT Directory Structure_ es l'index principal de carpetes i arxius i per últim, el _Data Area_ conté
 tot el contingut d'arxius i carpetes.
 
-###EXPLICACIÓ DE LA PRÀCTICA
+### EXPLICACIÓ DE LA PRÀCTICA
+
 __1.__ __Requeriments__
 
 Per aquesta pràctica el que s'havia de realitzar eren diferents funcionalitats tractant els 
@@ -75,5 +80,10 @@ Com en aquesta pràctica s'havia de treballar amb diferents sistemes de fitxers,
 la pràctica en diferents mòduls per tal de que totes les funcionalitats quedesin lo més organitzades posible.
 
 ![GitHub Logo](assets/moduls.png)
+
+He creat un modul per cadascún dels sitemes de fitxers que contenen les diferents funcionalitats 
+de cadascun d'aquests per separat. Dins de cadascun dels mòduls, per cadascuna de les funcionalitats 
+he implementat una funció diferent per tal de que el codi em quedes lo més estructurat posible
+segons els diferents casos en els que es podem trobar durant l'execució del programa.
 
 
