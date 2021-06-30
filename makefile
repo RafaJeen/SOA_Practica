@@ -1,5 +1,3 @@
-
-
 shooter: main.o ext.o fat16.o
 	gcc main.o ext.o fat16.o -o shooter
 main.o: main.c

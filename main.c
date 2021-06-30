@@ -81,9 +81,14 @@ int main (int argc, char *argv[]){
                   printf("El nombre de parametres es incorrecte.\n");
                   return 0;
               } else {
-                  char nomFitxer[10];
+                  char nomFitxer[30];
                   char extensio[4];
+                  //hacer copia para fase 4 que necesitas nombre original
                   FAT_separaExtensio(argv[3], nomFitxer, extensio);
+                  if(strlen(nomFitxer) > 6){
+                      nomFitxer[6] = '\0';
+                  }
+
                   int fileBytes = FAT_findFileInFat(fd, fat, nomFitxer, extensio, 2);
                   if(fileBytes >= 0) {
                       printf("Fitxer trobat. Ocupa %d bytes.\n", fileBytes);
@@ -103,4 +108,5 @@ int main (int argc, char *argv[]){
         printf("Error. Volum no formatat en FAT16 ni EXT2.\n");
       }
     }
+    return 0;
 }
