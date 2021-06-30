@@ -2,6 +2,8 @@
 
 
 int FAT_isFat16(int fd){
+  int trobat = 0;
+
   lseek(fd, 0, SEEK_SET);
 
   short rootDirSectors, BPB_RootEntCnt, BPB_BytsPerSec;
@@ -53,10 +55,9 @@ int FAT_isFat16(int fd){
   short countOfClousters = DataSec / BPB_SetPerClus;
 
   if(countOfClousters >= 4085 && countOfClousters < 65525){
-    return 1;
-  } else {
-    return 0;
+    trobat = 1;
   }
+  return trobat;
 }
 
 void FAT_llegeixInfoFat(Fat *fat, int fd) {
@@ -138,70 +139,104 @@ void  FAT_separaExtensio(char* nomTotal, char* nomFitxer, char* extensio) {
    }
 }
 
-char* FAT_clearString(char *string, int limit) {
-    char* clearedString = (char *) malloc (sizeof(char)*strlen(string));
+void FAT_clearString(char *string, int limit) {
     int j = 0;
+    int i = 0;
 
-    for(int i = 0; i <= limit; i++){
-        if(string[i] != ' ' && string[i] != '~'){
+    for(i = 0; i <= limit; i++){
+        if(string[i] != ' '){
             if(string[i] >= 'A' && string[i] <= 'Z'){
-                clearedString[j] = string[i] - 'A' + 'a';
+                string[j] = string[i] - 'A' + 'a';
             } else {
-                clearedString[j] = string[i];
+                string[j] = string[i];
             }
             j++;
         } else {
-            string[i] = '\0';
+            //string[i] = '\0';
+            string[j] = '\0';
             break;
         }
     }
-    return clearedString;
+    string[j] = '\0';
 }
 
 int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int blockNum){
+
+    uint32_t rootDirectoryRegion = fat.BPB_RootEnCnt * 32;
 
     uint32_t RootDirectoryRegionStart = (fat.BPB_RsvdSecCnt+(fat.BPB_NumFATs*fat.BPB_FATSz16))* fat.BPB_BytsPerSec ;
 
     uint32_t DataRegionStart = ((blockNum-2) * fat.BPB_SecPerClus * fat.BPB_BytsPerSec) + RootDirectoryRegionStart ;
 
+    if(blockNum!=2){
+        DataRegionStart = DataRegionStart + rootDirectoryRegion;
+    }
 
     lseek(fd, DataRegionStart, SEEK_SET);
 
     int surt = 0;
     int bytes = -1;
+    DirectoryEntryFat de;
 
-    while(!surt) {
-        DirectoryEntryFat de;
+    for(int k=0; !surt; k++) {
         read(fd, &de, sizeof(DirectoryEntryFat));
         if(de.long_name[0] == 0x00){
             surt = 1;
         } else {
-            char* deFileName = FAT_clearString(de.long_name, 8);
-            char* deExtension = FAT_clearString(de.extension, 3);
+            FAT_clearString(de.long_name, 8);
+            FAT_clearString(de.extension, 3);
+
+            if(strlen(de.long_name) > 6){
+                /*if(de.long_name[6] == '~' && de.long_name[7] == '1'){
+                    de.long_name[6] = '\0';
+                } else {*/
+                    de.long_name[6] = '\0';
+                //}
+            }
 
             //Comprovem que no tingui la extensio directament enganxada
-            if(strlen(deExtension) > 0){
-                char* aux = (char *) malloc (sizeof(char)*strlen(deExtension)+1);
-                int k = strlen(deFileName) - (strlen(deExtension));
+            if(strlen(de.extension) > 0){
+                char aux[4];
+                int k = strlen(de.long_name) - (strlen(de.extension));
                 int j = 0;
-                for(int i = k; i < strlen(deFileName); i++){
-                    aux[j] = deFileName[i];
+                for(int i = k; i < strlen(de.long_name); i++){
+                    aux[j] = de.long_name[i];
+                    j++;
                 }
-                if(strcmp(aux, deExtension) == 0){
-                    deFileName[k] = '\0';
+                aux[j] = '\0';
+                if(strcmp(aux, de.extension) == 0){
+                    de.long_name[k] = '\0';
                 }
             }
 
-            if(strcmp(nomFitxer, deFileName) == 0){
-                if(strlen(deExtension) > 0){
-                    if(strcmp(deExtension, extensio) == 0){
-                        bytes = de.fSize;
+            for(int i=0; de.long_name[i]!='\0' && i<8 ;i++){
+                if(de.long_name[i]==' '){
+                    de.long_name[i]='\0';
+                    break;
+                }
+            }
+
+            if(de.fileAttr == 16 && strcmp(de.long_name, ".") != 0 && strcmp(de.long_name, "..") != 0){
+                bytes = FAT_findFileInFat(fd, fat, nomFitxer, extensio, de.firstCluster);
+                if(bytes>=0){
+                    surt = 1;
+                }
+                lseek(fd, DataRegionStart+k*(sizeof(DirectoryEntryFat)), SEEK_SET);
+            } else
+                if(strcmp(nomFitxer, de.long_name) == 0){
+                    if(strlen(de.extension) > 0){
+                        if(strcmp(de.extension, extensio) == 0){
+                            bytes = de.fSize;
+                            surt = 1;
+                        }
+                    } else {
+                        if(strlen(extensio) == 0){
+                            bytes = de.fSize;
+                            surt = 1;
+                        }
                     }
-                } else {
-                    bytes = de.fSize;
                 }
             }
         }
-    }
     return bytes;
 }
