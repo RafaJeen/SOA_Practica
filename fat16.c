@@ -152,7 +152,6 @@ void FAT_clearString(char *string, int limit) {
             }
             j++;
         } else {
-            //string[i] = '\0';
             string[j] = '\0';
             break;
         }
@@ -160,7 +159,7 @@ void FAT_clearString(char *string, int limit) {
     string[j] = '\0';
 }
 
-int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int blockNum){
+int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int blockNum, int deleteFile){
 
     uint32_t rootDirectoryRegion = fat.BPB_RootEnCnt * 32;
 
@@ -216,7 +215,7 @@ int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int bloc
             }
 
             if(de.fileAttr == 16 && strcmp(de.long_name, ".") != 0 && strcmp(de.long_name, "..") != 0){
-                bytes = FAT_findFileInFat(fd, fat, nomFitxer, extensio, de.firstCluster);
+                bytes = FAT_findFileInFat(fd, fat, nomFitxer, extensio, de.firstCluster, deleteFile);
                 if(bytes>=0){
                     surt = 1;
                 }
@@ -225,11 +224,21 @@ int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int bloc
                 if(strcmp(nomFitxer, de.long_name) == 0){
                     if(strlen(de.extension) > 0){
                         if(strcmp(de.extension, extensio) == 0){
+                            if(deleteFile){
+                                lseek(fd, DataRegionStart+((k)*(sizeof(DirectoryEntryFat))), SEEK_SET);
+                                de.long_name[0] = 0xe5;
+                                write(fd, &de, sizeof(DirectoryEntryFat));
+                            }
                             bytes = de.fSize;
                             surt = 1;
                         }
                     } else {
                         if(strlen(extensio) == 0){
+                            if(deleteFile){
+                                de.long_name[0] = 0xe5;
+                                lseek(fd, DataRegionStart+((k)*(sizeof(DirectoryEntryFat))), SEEK_SET);
+                                write(fd, &de, sizeof(DirectoryEntryFat));
+                            }
                             bytes = de.fSize;
                             surt = 1;
                         }

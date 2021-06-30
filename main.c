@@ -11,8 +11,8 @@ int getKey(char *command) {
 }
 
 int main (int argc, char *argv[]){
-
-    int fd = open(argv[2], O_RDONLY);
+//dddd
+    int fd = open(argv[2], O_RDWR);
 
     if(fd < 0){
         printf("Error. Volum inexistent.\n");
@@ -55,6 +55,7 @@ int main (int argc, char *argv[]){
               /*if(argc != 4) {
                   printf("El nobre de parametres es incorrecte.\n");
               } else {
+                  //eliminar el fichero
               }*/
               break;
           default:
@@ -89,7 +90,7 @@ int main (int argc, char *argv[]){
                       nomFitxer[6] = '\0';
                   }
 
-                  int fileBytes = FAT_findFileInFat(fd, fat, nomFitxer, extensio, 2);
+                  int fileBytes = FAT_findFileInFat(fd, fat, nomFitxer, extensio, 2, 0);
                   if(fileBytes >= 0) {
                       printf("Fitxer trobat. Ocupa %d bytes.\n", fileBytes);
                   } else {
@@ -98,6 +99,24 @@ int main (int argc, char *argv[]){
               }
               break;
           case 3: //delete
+              if(argc != 4) {
+                 printf("El nobre de parametres es incorrecte.\n");
+              } else {
+                  //eliminar el fichero
+                  char nomFitxer[30];
+                  char extensio[4];
+                  //hacer copia para fase 4 que necesitas nombre original
+                  FAT_separaExtensio(argv[3], nomFitxer, extensio);
+                  if(strlen(nomFitxer) > 6){
+                      nomFitxer[6] = '\0';
+                  }
+                  int bytes = FAT_findFileInFat(fd, fat, nomFitxer, extensio, 2, 1);
+                  if(bytes >= 0){
+                      printf("El fitxer %s ha estat eliminat.\n", argv[3]);
+                  } else {
+                      printf("Error. Fitxer no trobat.\n");
+                  }
+              }
               break;
           default:
               printf("La comanda %s es incorrecte.\n", argv[1]);

@@ -52,7 +52,7 @@ char *FAT_netejaCadena(char*cadena);
 void FAT_llegeixInfoFat(Fat *fat, int fd);
 void FAT_mostraInfoFat16(Fat fat);
 void FAT_separaExtensio(char* nomTotal, char* nomFitxer, char* extensio);
-int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int blockNum);
+int FAT_findFileInFat(int fd, Fat fat, char* nomFitxer, char* extensio, int blockNum, int deleteFile);
 
 
 
